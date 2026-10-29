@@ -381,14 +381,14 @@ Pushes and pull requests run:
 
 - Bash syntax checks
 - ShellCheck at warning severity
-- offline tests for all twelve profile mappings, root mappings (including the
+- offline tests for all thirteen profile mappings, root mappings (including the
   three ZeroMount variants), Clang selection, KPM configuration, SUSFS
   selection/version floor, NoMount/ZeroMount selection and wiring,
   Android version inference, and workflow option synchronization
 - actionlint for all workflow files
 
 `Check upstream health` runs every Monday and can also be started manually. It
-resolves exact commits for all twelve profiles, then runs a thirty-job
+resolves exact commits for all thirteen profiles, then runs a thirty-job
 smoke-test matrix: KernelSU-Next + SUSFS + NoMount, SukiSU Ultra + SUSFS +
 NoMount + KPM
 (including the crDroid OnePlus 12 / Android 6.1 vendor include drift),
