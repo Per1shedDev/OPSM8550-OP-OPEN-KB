@@ -134,7 +134,7 @@ resolve_build_profile() {
       KERNEL_SOURCE="crdroidandroid"
       SOURCE_LAYOUT="community-flat"
       # Assume this is the only needed flag? Citation needed.
-      KERNEL_MAKE_FLAGS="CONFIG_OPLUS_DEVICE_DTBS=y CONFIG_KALLSYMS_ALL=y"
+      KERNEL_MAKE_FLAGS="CONFIG_OPLUS_DEVICE_DTBS=y CONFIG_KSU=y CONFIG_KALLSYMS=y CONFIG_KALLSYMS_ALL=y"
       ;;
     "SM8650 | OnePlus 12 | OnePlus official")
       PROFILE_ID="sm8650-oneplus12-official"
