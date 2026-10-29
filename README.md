@@ -22,6 +22,7 @@ and source independently.
 | `sm8550` | OnePlus 11 / 12R / Ace 3 | OnePlus 11 IDs plus `aston`, `OP5D35L1`, `astonc`, `OP5CF9L1` | LineageOS |
 | `sm8550` | OnePlus 11 / 12R / Ace 3 | OnePlus 11 IDs plus `aston`, `OP5D35L1`, `astonc`, `OP5CF9L1` | crDroid |
 | `sm8550` | OnePlus 12R / Ace 3 | `aston`, `OP5D35L1`, `astonc`, `OP5CF9L1` | OnePlus 12R development |
+| `sm8550` | OnePlus Open | `ossi`, `0P5973L1` | crDroid |
 | `sm8650` | OnePlus 12 | `waffle`, `OP5929L1`, `OP595DL1` | OnePlus official |
 | `sm8650` | OnePlus 12 | `waffle`, `OP5929L1`, `OP595DL1` | LineageOS |
 | `sm8650` | OnePlus 12 | `waffle`, `OP5929L1`, `OP595DL1` | crDroid |
@@ -100,7 +101,7 @@ selected root preset changes only its required feature options.
 
 ## crDroid 13 (Android 17)
 
-The existing crDroid profiles cover Nord CE4, OnePlus 11 / 12R / Ace 3, and
+The existing crDroid profiles cover Nord CE4, OnePlus 11 / 12R / Ace 3, Open, and
 OnePlus 12 on crDroid 13. Automatic branch selection follows the upstream
 default, currently `17.0`, for both the kernel and matching modules. Manual
 selection also offers `17.0`; retain `16.0` for crDroid 12 / Android 16.
@@ -112,7 +113,7 @@ Android 17 branches select the pinned AOSP `clang-r584948` toolchain to match
 [crDroid's compiler default](https://github.com/crdroidandroid/android_build_soong/blob/17.0/cc/config/global.go).
 Flashable ZIPs enforce `supported.versions=17`. SUSFS and ZeroMount still use
 the devices' GKI kernel families: Android 14 / 5.15 for Nord CE4 and OnePlus
-11 / 12R / Ace 3, and Android 14 / 6.1 for OnePlus 12. The ROM Android version
+11 / 12R / Ace 3, Open, and Android 14 / 6.1 for OnePlus 12. The ROM Android version
 does not change those kernel-base mappings.
 
 The OnePlus 11 / 12R crDroid profile passes the common OPlus DTB flag and both
