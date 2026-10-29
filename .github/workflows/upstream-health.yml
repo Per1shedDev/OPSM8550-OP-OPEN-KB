@@ -45,12 +45,15 @@ jobs:
           - SM8450 | OnePlus 10T / Ace Pro | LineageOS community
           - SM8550 | OnePlus 11 / 12R | LineageOS (recommended)
           - SM8550 | OnePlus 11 / 12R | crDroid
+          - SM8550 | OnePlus Open | crDroid
           - SM8650 | OnePlus 12 | LineageOS (recommended)
         include:
           - integration: FinaSU (experimental)
             profile: SM8450 | OnePlus 10T / Ace Pro | LineageOS community
           - integration: FinaSU (experimental)
             profile: SM8550 | OnePlus 11 / 12R | LineageOS (recommended)
+          - integration: FinaSU (experimental)
+            profile: SM8550 | OnePlus Open | crDroid
           - integration: FinaSU (experimental)
             profile: SM8650 | OnePlus 12 | LineageOS (recommended)
           - integration: KernelSU-Next + SUSFS + ZeroMount (experimental)
