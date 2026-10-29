@@ -17,6 +17,7 @@ list_build_profiles() {
     "SM8550 | OnePlus 11 / 12R | LineageOS (recommended)" \
     "SM8550 | OnePlus 11 / 12R | crDroid" \
     "SM8550 | OnePlus 12R | development" \
+    "SM8550 | OnePlus Open | crDroid" \
     "SM8650 | OnePlus 12 | OnePlus official" \
     "SM8650 | OnePlus 12 | LineageOS (recommended)" \
     "SM8650 | OnePlus 12 | crDroid"
@@ -123,6 +124,17 @@ resolve_build_profile() {
       DEVICE_NAMES="aston OP5D35L1 astonc OP5CF9L1"
       KERNEL_SOURCE="OnePlus12R-development"
       SOURCE_LAYOUT="community-flat"
+      ;;
+      "SM8550 | OnePlus Open | crDroid")
+      PROFILE_ID="sm8550-oneplus-open-crdroid"
+      SOC="sm8550"
+      TARGET_NAME="OnePlus Open"
+      DEVICE_CODENAMES="ossi"
+      DEVICE_NAMES="ossi 0P5973L1"
+      KERNEL_SOURCE="crdroidandroid"
+      SOURCE_LAYOUT="community-flat"
+      # Assume this is the only needed flag? Citation needed.
+      KERNEL_MAKE_FLAGS="CONFIG_OPLUS_DEVICE_DTBS=y"
       ;;
     "SM8650 | OnePlus 12 | OnePlus official")
       PROFILE_ID="sm8650-oneplus12-official"
