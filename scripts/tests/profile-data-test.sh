@@ -161,7 +161,7 @@ assert_eq "CONFIG_OPLUS_DEVICE_DTBS=y CONFIG_BENZ_DTB=y" "$KERNEL_MAKE_FLAGS" "N
 resolve_build_profile "SM8550 | OnePlus Open | crDroid"
 assert_eq "crdroidandroid" "$KERNEL_SOURCE" "OnePlus Open crDroid kernel source"
 assert_eq "sm8550" "$UPSTREAM_SOC" "OnePlus Open crDroid upstream repository SoC"
-assert_eq "CONFIG_OPLUS_DEVICE_DTBS=y" "OnePlus Open crDroid make flags"
+assert_eq "CONFIG_OPLUS_DEVICE_DTBS=y" "$KERNEL_MAKE_FLAGS" "OnePlus Open crDroid make flags"
 
 resolve_build_profile "SM8650 | OnePlus 12 | LineageOS (recommended)"
 assert_eq "CONFIG_OPLUS_DEVICE_DTBS=y CONFIG_WAFFLE_DTB=y" "$KERNEL_MAKE_FLAGS" "OnePlus 12 LineageOS make flags"
