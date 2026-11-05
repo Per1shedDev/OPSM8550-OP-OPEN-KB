@@ -139,7 +139,7 @@ awk '
 expected_socs=(sm7550 sm7550 sm8450 sm8450 sm8550 sm8550 sm8550 sm8550 sm8550 sm8550 sm8650 sm8650 sm8650)
 expected_upstream_socs=(sm8550 sm8550 sm8450 sm8450 sm8550 sm8550 sm8550 sm8550 sm8550 sm8550 sm8650 sm8650 sm8650)
 expected_codenames=(benz benz negroni ovaltine salami salami "salami aston astonc" "salami aston astonc" "aston astonc" ossi waffle waffle waffle)
-expected_devices=("benz OP5D3FL1 CPH2613" "benz OP5D3FL1 CPH2613" "negroni OP516EL1 OP516FL1" "ovaltine OP5551L1 OP5552L1" "salami OP591BL1 OP594DL1" "salami OP591BL1 OP594DL1" "salami OP591BL1 OP594DL1 aston OP5D35L1 astonc OP5CF9L1" "salami OP591BL1 OP594DL1 aston OP5D35L1 astonc OP5CF9L1" "aston OP5D35L1 astonc OP5CF9L1" "ossi 0P5973L1" "waffle OP5929L1 OP595DL1" "waffle OP5929L1 OP595DL1" "waffle OP5929L1 OP595DL1")
+expected_devices=("benz OP5D3FL1 CPH2613" "benz OP5D3FL1 CPH2613" "negroni OP516EL1 OP516FL1" "ovaltine OP5551L1 OP5552L1" "salami OP591BL1 OP594DL1" "salami OP591BL1 OP594DL1" "salami OP591BL1 OP594DL1 aston OP5D35L1 astonc OP5CF9L1" "salami OP591BL1 OP594DL1 aston OP5D35L1 astonc OP5CF9L1" "aston OP5D35L1 astonc OP5CF9L1" "ossi OP5973L1" "waffle OP5929L1 OP595DL1" "waffle OP5929L1 OP595DL1" "waffle OP5929L1 OP595DL1")
 
 for i in "${!profiles[@]}"; do
   resolve_build_profile "${profiles[$i]}"
@@ -161,7 +161,7 @@ assert_eq "CONFIG_OPLUS_DEVICE_DTBS=y CONFIG_BENZ_DTB=y" "$KERNEL_MAKE_FLAGS" "N
 resolve_build_profile "SM8550 | OnePlus Open | crDroid"
 assert_eq "crdroidandroid" "$KERNEL_SOURCE" "OnePlus Open crDroid kernel source"
 assert_eq "sm8550" "$UPSTREAM_SOC" "OnePlus Open crDroid upstream repository SoC"
-assert_eq "CONFIG_OPLUS_DEVICE_DTBS=y CONFIG_KSU=y CONFIG_KALLSYMS=y CONFIG_KALLSYMS_ALL=y" "$KERNEL_MAKE_FLAGS" "OnePlus Open crDroid make flags"
+assert_eq "CONFIG_OPLUS_DEVICE_DTBS=y" "$KERNEL_MAKE_FLAGS" "OnePlus Open crDroid make flags"
 
 resolve_build_profile "SM8650 | OnePlus 12 | LineageOS (recommended)"
 assert_eq "CONFIG_OPLUS_DEVICE_DTBS=y CONFIG_WAFFLE_DTB=y" "$KERNEL_MAKE_FLAGS" "OnePlus 12 LineageOS make flags"
