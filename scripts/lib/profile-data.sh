@@ -130,7 +130,7 @@ resolve_build_profile() {
       SOC="sm8550"
       TARGET_NAME="OnePlus Open"
       DEVICE_CODENAMES="ossi"
-      DEVICE_NAMES="ossi 0P5973L1"
+      DEVICE_NAMES="ossi OP5973L1"
       KERNEL_SOURCE="crdroidandroid"
       SOURCE_LAYOUT="community-flat"
       # Assume this is the only needed flag? Citation needed.
