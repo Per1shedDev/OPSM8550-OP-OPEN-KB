@@ -54,8 +54,6 @@ CONFIG_KALLSYMS := y
 CONFIG_KALLSYMS_ALL := y
 CONFIG_ARM64 := y
 CONFIG_KSU_DYNAMIC_MANAGER := y
-CONFIG_KALLSYMS := y
-CONFIG_KALLSYMS_ALL := y
 include {fixture / 'Kbuild'}
 print:
 \t@printf '%s\\n' 'FLAGS=$(ccflags-y)'
