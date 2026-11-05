@@ -22,7 +22,7 @@ and source independently.
 | `sm8550` | OnePlus 11 / 12R / Ace 3 | OnePlus 11 IDs plus `aston`, `OP5D35L1`, `astonc`, `OP5CF9L1` | LineageOS |
 | `sm8550` | OnePlus 11 / 12R / Ace 3 | OnePlus 11 IDs plus `aston`, `OP5D35L1`, `astonc`, `OP5CF9L1` | crDroid |
 | `sm8550` | OnePlus 12R / Ace 3 | `aston`, `OP5D35L1`, `astonc`, `OP5CF9L1` | OnePlus 12R development |
-| `sm8550` | OnePlus Open | `ossi`, `0P5973L1` | crDroid |
+| `sm8550` | OnePlus Open | `ossi`, `OP5973L1` | crDroid |
 | `sm8650` | OnePlus 12 | `waffle`, `OP5929L1`, `OP595DL1` | OnePlus official |
 | `sm8650` | OnePlus 12 | `waffle`, `OP5929L1`, `OP595DL1` | LineageOS |
 | `sm8650` | OnePlus 12 | `waffle`, `OP5929L1`, `OP595DL1` | crDroid |
