@@ -26,6 +26,22 @@ INPUT_ROM_GKI_MODULE_COMPAT="${INPUT_ROM_GKI_MODULE_COMPAT:-Strict GKI module ch
 
 resolve_build_profile "$INPUT_BUILD_PROFILE"
 resolve_root_solution "$INPUT_ROOT_SOLUTION"
+ANDROID_BATCH_BUILD="${INPUT_ANDROID_BATCH_BUILD:-0}"
+if [[ "$INPUT_BRANCH_MODE" == 'Build Android 16 + 17 (crDroid batch)' ]]; then
+  echo '::error::Android batch mode must be expanded into 16.0/17.0 jobs by the workflow matrix.'
+  exit 1
+fi
+case "$ANDROID_BATCH_BUILD" in
+  0) ;;
+  1)
+    if [[ "$KERNEL_SOURCE" != crdroidandroid || ( "$INPUT_KERNEL_BRANCH" != 16.0 && "$INPUT_KERNEL_BRANCH" != 17.0 ) ||
+          ( "$INPUT_BRANCH_MODE" != 'I want to select the branch myself' && "$INPUT_BRANCH_MODE" != manual ) ]]; then
+      echo '::error::Android 16 + 17 batch builds require a crDroid profile with explicit 16.0/17.0 branches.'
+      exit 1
+    fi
+    ;;
+  *) echo "::error::Invalid Android batch flag: $ANDROID_BATCH_BUILD"; exit 1 ;;
+esac
 
 case "$INPUT_ROM_GKI_MODULE_COMPAT" in
   "Strict GKI module checks (default)") ROM_GKI_MODULE_COMPAT=0 ;;
@@ -120,7 +136,7 @@ case "$KSU_TYPE" in
     KSU_REPO="https://github.com/KOWX712/KernelSU.git"
     KSU_REF="master"
     ;;
-  FinaSU)
+  FinaSU|FinaSU-with-susfs|FinaSU-with-nomount|FinaSU-with-susfs-nomount)
     KSU_REPO="https://github.com/LyraVoid/FinaSU.git"
     KSU_REF="$FINASU_RELEASE"
     KSU_COMMIT="$FINASU_COMMIT"
@@ -165,6 +181,9 @@ if [[ "$KSU_TYPE" == *susfs* ]]; then
   SUSFS_MIN_VERSION="2.3.0"
   resolve_susfs_settings "$SOC" "$KERNEL_BRANCH"
   case "$KSU_TYPE" in
+    FinaSU-with-susfs|FinaSU-with-susfs-nomount)
+      SUSFS_COMMIT="$(finasu_susfs_commit "$SUSFS_REF")"
+      ;;
     SukiSU-Ultra-with-susfs-KPM|SukiSU-Ultra-with-susfs-nomount-KPM|SukiSU-Ultra-with-susfs-zeromount-KPM|BakaSU-with-susfs|BakaSU-with-susfs-nomount|BakaSU-with-susfs-zeromount)
       SUSFS_COMMIT="$(su_session_compatible_susfs_commit "$SUSFS_REF")"
       echo "::notice::Using su-session-compatible SUSFS v2.3.0 commit $SUSFS_COMMIT for $SUSFS_REF ($KSU_TYPE)."
@@ -199,9 +218,16 @@ NOMOUNT_REPO="https://github.com/maxsteeel/nomount.git"
 NOMOUNT_REF=""
 NOMOUNT_COMMIT=""
 if [[ "$KSU_TYPE" == *nomount* ]]; then
-  NOMOUNT_REF="master"
-  NOMOUNT_COMMIT="$(git_ls_remote_retry --exit-code "$NOMOUNT_REPO" "refs/heads/${NOMOUNT_REF}" \
-    | awk 'NR == 1 {print $1}')"
+  if [[ "$KSU_TYPE" == FinaSU* ]]; then
+    # Use FinaSU's vendored v22 driver, matching its Manager/ksud wire ABI.
+    NOMOUNT_REPO="$KSU_REPO"
+    NOMOUNT_REF="$FINASU_RELEASE:userspace/nomount"
+    NOMOUNT_COMMIT="$FINASU_COMMIT"
+  else
+    NOMOUNT_REF="master"
+    NOMOUNT_COMMIT="$(git_ls_remote_retry --exit-code "$NOMOUNT_REPO" "refs/heads/${NOMOUNT_REF}" \
+      | awk 'NR == 1 {print $1}')"
+  fi
   if [[ ! "$NOMOUNT_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
     echo "::error::Could not resolve NoMount branch '$NOMOUNT_REF' to a commit."
     exit 1
@@ -246,6 +272,7 @@ esac
   echo "DEVICE_CODENAMES=$DEVICE_CODENAMES"
   echo "DEVICE_NAMES=$DEVICE_NAMES"
   echo "SUPPORTED_ANDROID_VERSIONS=$SUPPORTED_ANDROID_VERSIONS"
+  echo "ANDROID_BATCH_BUILD=$ANDROID_BATCH_BUILD"
   echo "BUILD_MODE=$INPUT_BUILD_MODE"
   echo "SOC=$SOC"
   echo "UPSTREAM_SOC=$UPSTREAM_SOC"
@@ -294,6 +321,7 @@ esac
   echo "device_codenames=$DEVICE_CODENAMES"
   echo "device_names=$DEVICE_NAMES"
   echo "supported_android_versions=$SUPPORTED_ANDROID_VERSIONS"
+  echo "android_batch_build=$ANDROID_BATCH_BUILD"
   echo "build_mode=$INPUT_BUILD_MODE"
   echo "soc=$SOC"
   echo "upstream_soc=$UPSTREAM_SOC"
@@ -338,6 +366,7 @@ esac
   echo "- Root solution: $KSU_TYPE"
   echo "- ROM GKI module compatibility: $ROM_GKI_MODULE_COMPAT"
   echo "- Mode: $INPUT_BUILD_MODE"
+  echo "- Android 16/17 batch: $ANDROID_BATCH_BUILD"
   if [[ -n "$SUPPORTED_ANDROID_VERSIONS" ]]; then
     echo "- Android package check: $SUPPORTED_ANDROID_VERSIONS"
   else
@@ -346,7 +375,7 @@ esac
   if [[ -n "$KSU_COMMIT" ]]; then
     echo "- KernelSU commit: \`${KSU_COMMIT}\` ($KSU_REF)"
   fi
-  if [[ "$KSU_TYPE" == FinaSU ]]; then
+  if [[ "$KSU_TYPE" == FinaSU* ]]; then
     echo "- FinaSU manager: [$FINASU_MANAGER_APK]($FINASU_MANAGER_URL)"
     echo "- Manager APK SHA-256: \`$FINASU_MANAGER_APK_SHA256\`"
   fi
