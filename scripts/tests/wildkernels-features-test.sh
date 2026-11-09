@@ -21,6 +21,8 @@ done
 grep -Fq 'apply-wildkernels-features.sh" "$PWD" apply' "$COMPILE" || fail "feature integration is not invoked before defconfig"
 grep -Fq 'apply-wildkernels-features.sh" "$PWD" verify' "$COMPILE" || fail "final config verification is not invoked"
 grep -Fq "obj-\$(CONFIG_BBG) += baseband-guard/" "$FEATURES" || fail "BBG Kbuild entry is not checked against the upstream entry"
+grep -Fq 'freeze_timeout_msecs = 5 * MSEC_PER_SEC;' "$FEATURES" || fail "missing crDroid freeze-timeout compatibility adapter"
+grep -Fq 'apply_freeze_timeout_patch' "$FEATURES" || fail "freeze-timeout patch bypasses its compatibility adapter"
 grep -Fq 'baseband_guard' "$FEATURES" || fail "BBG LSM registration is not verified"
 grep -Fq 'bash scripts/tests/wildkernels-features-test.sh' "$WORKFLOW" || fail "CI does not run WildKernels feature integration test"
 echo "PASS: WildKernels OnePlus Open feature integration wiring"
