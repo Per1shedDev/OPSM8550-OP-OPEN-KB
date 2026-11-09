@@ -381,11 +381,17 @@ resolve_susfs_settings sm7550 lineage-23.0
 assert_eq "gki-android14-5.15" "$SUSFS_REF" "Nord CE4 susfs"
 for crdroid_soc in sm7550 sm8550 sm8650; do
   resolve_susfs_settings "$crdroid_soc" 17.0
-  if [[ "$crdroid_soc" == sm8650 ]]; then
-    assert_eq "gki-android14-6.1" "$SUSFS_REF" "crDroid 13 OnePlus 12 GKI base"
-  else
-    assert_eq "gki-android14-5.15" "$SUSFS_REF" "crDroid 13 $crdroid_soc GKI base"
-  fi
+  case "$crdroid_soc" in
+    sm8550)
+      assert_eq "gki-android13-5.15" "$SUSFS_REF" "crDroid 17 OnePlus Open Android 13 / 5.15 kernel KMI"
+      ;;
+    sm8650)
+      assert_eq "gki-android14-6.1" "$SUSFS_REF" "crDroid 13 OnePlus 12 GKI base"
+      ;;
+    sm7550)
+      assert_eq "gki-android14-5.15" "$SUSFS_REF" "crDroid 13 Nord CE4 GKI base"
+      ;;
+  esac
   [[ "$(zeromount_patch_sha256 "${SUSFS_REF#gki-}")" =~ ^[0-9a-f]{64}$ ]] \
     || fail "crDroid 13 $crdroid_soc ZeroMount patch mapping"
 done
