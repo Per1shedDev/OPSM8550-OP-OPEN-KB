@@ -165,6 +165,12 @@ fi
 
 apply_ksu_uapi_backports
 
+# Import WildKernels' kernel feature set for the OnePlus Open SM8550 profile.
+# The integration is scoped to this device profile and uses pinned upstream patches.
+if [[ "$PROFILE_ID" == "sm8550-oneplus-open-crdroid" ]]; then
+  bash "${SCRIPT_DIR}/apply-wildkernels-features.sh" "$PWD" apply
+fi
+
 if [[ "$KSU_TYPE" == *zeromount* ]]; then
   : "${ZEROMOUNT_REPO:?}"
   : "${ZEROMOUNT_COMMIT:?}"
@@ -203,6 +209,10 @@ make "${MAKE_ARGS[@]}" gki_defconfig "${ACTIVE_CONFIG_ARRAY[@]}"
 apply_variant_configs out/.config
 apply_rom_gki_module_compat_config out/.config
 make "${MAKE_ARGS[@]}" olddefconfig
+
+if [[ "$PROFILE_ID" == "sm8550-oneplus-open-crdroid" ]]; then
+  bash "${SCRIPT_DIR}/apply-wildkernels-features.sh" "$PWD" verify "$PWD/out/.config"
+fi
 
 require_config_enabled  out/.config CONFIG_MODULES
 require_config_enabled  out/.config CONFIG_MODULE_UNLOAD
