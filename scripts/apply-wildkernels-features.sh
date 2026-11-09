@@ -8,6 +8,8 @@ set -euo pipefail
 KERNEL_ROOT="${1:-$PWD}"
 MODE="${2:-apply}"
 PATCHES_COMMIT="b61ceb600da12ef1093597d8a4dfc15d0297b3c1"
+WILDKERNELS_GKI_COMMIT="30216b4dbb62f496bd206eb34fdafd13da08ed8d"
+DROIDSPACES_PATCH_COMMIT="023013a9ea07cd5a22d0e3bd57062c597c87ee03"
 BBG_COMMIT="028ff7fd509e2104596da7cc1ef8e6ce2a0c9082"
 PATCH_CACHE="${GITHUB_WORKSPACE:-$KERNEL_ROOT}/.wildkernels-patches"
 DEFCONFIG="$KERNEL_ROOT/arch/arm64/configs/gki_defconfig"
@@ -50,68 +52,30 @@ apply_upstream_patch() {
   apply_patch_file "$(fetch_patch "$path")" "$path"
 }
 
-apply_sysvipc_kabi_patch() {
-  local sched="$KERNEL_ROOT/include/linux/sched.h"
-  [[ -s "$sched" ]] || die "SYSVIPC KABI target not found: $sched"
-
-  # crDroid 17.0 already consumes KABI slot 1 for user_dumpable. The generic
-  # WildKernels patch assumes slots 1-3 are free, so map SYSVIPC onto the
-  # available slots 2-4 while retaining the original reserve layout when
-  # CONFIG_SYSVIPC is disabled.
-  python3 - "$sched" <<'PY'
-import pathlib
-import sys
-
-path = pathlib.Path(sys.argv[1])
-text = path.read_text()
-
-old_fields = """#ifdef CONFIG_SYSVIPC
-\tstruct sysv_sem\t\t\tsysvsem;
-\tstruct sysv_shm\t\tsysvshm;
-#endif"""
-new_fields = """#ifdef CONFIG_SYSVIPC
-\t// struct sysv_sem\t\tsysvsem;
-\t// struct sysv_shm\t\tsysvshm;
-#endif"""
-
-old_slots = """\tANDROID_KABI_RESERVE(2);
-\tANDROID_KABI_RESERVE(3);
-\tANDROID_KABI_RESERVE(4);
-\tANDROID_KABI_RESERVE(5);"""
-new_slots = """#ifdef CONFIG_SYSVIPC
-\tANDROID_KABI_USE(2, struct sysv_sem sysvsem);
-\t_ANDROID_KABI_REPLACE(ANDROID_KABI_RESERVE(3); ANDROID_KABI_RESERVE(4), struct sysv_shm sysvshm);
-#else
-\tANDROID_KABI_RESERVE(2);
-\tANDROID_KABI_RESERVE(3);
-\tANDROID_KABI_RESERVE(4);
-#endif
-\tANDROID_KABI_RESERVE(5);"""
-
-already_fields = new_fields in text
-already_slots = "ANDROID_KABI_USE(2, struct sysv_sem sysvsem);" in text and "_ANDROID_KABI_REPLACE(ANDROID_KABI_RESERVE(3); ANDROID_KABI_RESERVE(4), struct sysv_shm sysvshm);" in text
-
-if old_fields in text:
-    text = text.replace(old_fields, new_fields, 1)
-elif not already_fields:
-    raise SystemExit("Unexpected task_struct SYSVIPC field layout; refusing to edit sched.h")
-
-if old_slots in text:
-    text = text.replace(old_slots, new_slots, 1)
-elif not already_slots:
-    raise SystemExit("Expected free Android KABI slots 2-4 were not found; refusing to edit sched.h")
-
-path.write_text(text)
-PY
-
-  grep -Fq 'ANDROID_KABI_USE(2, struct sysv_sem sysvsem);' "$sched" \
-    || die "SYSVIPC semaphore field was not moved into KABI slot 2"
-  grep -Fq '_ANDROID_KABI_REPLACE(ANDROID_KABI_RESERVE(3); ANDROID_KABI_RESERVE(4), struct sysv_shm sysvshm);' "$sched" \
-    || die "SYSVIPC shared-memory field was not moved into KABI slots 3-4"
-  echo "sysvipc_kabi_layout=slot1:user_dumpable;sysvsem:slot2;sysvshm:slots3-4" >> "$PROOF"
-  note "Applied common/droidspaces/fix_sysvipc_kabi_1_2_3.patch (crDroid KABI slot adaptation)"
+apply_droidspaces_sysvipc_patch() {
+  local patch_file="$PATCH_CACHE/sysvipc-kabi-6-7-8.patch"
+  if [[ ! -s "$patch_file" ]]; then
+    note "Downloading Droidspaces SYSVIPC KABI patch (slots 6-8)" >&2
+    curl --fail --location --silent --show-error --retry 3 \
+      "https://raw.githubusercontent.com/ravindu644/Droidspaces-OSS/$DROIDSPACES_PATCH_COMMIT/Documentation/resources/kernel-patches/GKI/below-kernel-6.12/001.GKI-below-6.12-fix_sysvipc_kabi_6_7_8.patch" \
+      -o "$patch_file"
+  fi
+  apply_patch_file "$patch_file" "Droidspaces SYSVIPC KABI patch (slots 6-8)"
+  grep -Fq "ANDROID_KABI_USE(6, struct sysv_sem sysvsem);" "$KERNEL_ROOT/include/linux/sched.h" || die "SYSVIPC semaphore field was not moved into KABI slot 6"
+  grep -Fq "_ANDROID_KABI_REPLACE(ANDROID_KABI_RESERVE(7); ANDROID_KABI_RESERVE(8), struct sysv_shm sysvshm);" "$KERNEL_ROOT/include/linux/sched.h" || die "SYSVIPC shared-memory field was not moved into KABI slots 7-8"
+  echo "sysvipc_kabi_layout=slot1:user_dumpable;slots2-5:reserved;sysvsem:slot6;sysvshm:slots7-8" >> "$PROOF"
 }
 
+apply_android14_5_15_bbrv3_patch() {
+  local patch_file="$PATCH_CACHE/bbrv3-android14-5.15.patch"
+  if [[ ! -s "$patch_file" ]]; then
+    note "Downloading WildKernels Android 14 / 5.15 BBRv3 patch" >&2
+    curl --fail --location --silent --show-error --retry 3 \
+      "https://raw.githubusercontent.com/WildKernels/GKI_KernelSU_SUSFS/$WILDKERNELS_GKI_COMMIT/.github/actions/bbrv3/patches/0001-net-tcp-backport-BBRv3-to-android14-5.15.patch" \
+      -o "$patch_file"
+  fi
+  apply_patch_file "$patch_file" "WildKernels BBRv3 android14-5.15"
+}
 set_defconfig() {
   local key="$1" value="$2"
   if grep -q "^$key=" "$DEFCONFIG"; then
@@ -220,13 +184,13 @@ apply_features() {
   # Ptrace leak fix is specifically required by WildKernels on kernels < 5.16.
   apply_upstream_patch gki_ptrace.patch
 
-  # BBRv3's upstream 5.15 patch is maintained as android13-5.15. The 5.15
-  # patch is attempted against the crDroid 17 Android 14 / 5.15 KMI tree and
-  # must pass a clean dry-run; if the downstream tree diverges, fail instead of claiming BBRv3.
-  apply_upstream_patch common/bbrv3/0001-net-tcp-backport-BBRv3-to-android13-5.15.patch
+  # Use the dedicated WildKernels Android 14 / 5.15 BBRv3 patch, not
+  # the Android 13 / 5.15 variant from kernel_patches.
+  apply_android14_5_15_bbrv3_patch
 
-  # Droidspaces compatibility patches selected by WildKernels for SM8550.
-  apply_sysvipc_kabi_patch
+  # Droidspaces' Android 14 / 5.15-compatible SYSVIPC KABI patch uses slots
+  # 6-8, preserving crDroid's existing user_dumpable slot 1 and reserves 2-5.
+  apply_droidspaces_sysvipc_patch
   apply_upstream_patch common/droidspaces/0001-Return-ghost-task-if-task-is-null-and-is-requested-b.patch
 
   # OnePlus module interception/overlay support. The OP-OPEN Android 17
