@@ -11,7 +11,7 @@ Shell implementation used by the GitHub Actions workflows.
 | `set-build-metadata.sh` | Assigns package/diagnostics artifact names and branch-specific cache keys; Android batches add A16/A17 labels. |
 | `clone-sources.sh` | Fetches exact kernel and modules commits in parallel and prepares the official OnePlus layout when required. |
 | `download-clang.sh` | Downloads and validates an AOSP Clang directory from an exact pinned Gitiles commit, retrying incomplete archives before installing from staging. |
-| `compile-kernel.sh` | Applies integrations, generates config, performs validation-only runs or a full ccache-backed build, and reports timing/cache metrics. |
+| `compile-kernel.sh` | Applies integrations, generates config, performs validation-only runs or a full ccache-backed build, and reports timing/cache metrics. |\n| `apply-wildkernels-features.sh` | Imports pinned WildKernels kernel patches and feature Kconfig for the OnePlus Open crDroid Android 17 profile; verifies the resolved `.config` after `olddefconfig`. |
 | `make-anykernel-zip.sh` | Creates a device-checked AnyKernel3 ZIP, provenance manifest, release notes, raw Image asset, and SHA-256 checksums. |
 | `publish-diagnostics.sh` | Appends config, KPM, SUSFS, NoMount, and ZeroMount proof files to the job summary. |
 | `stage-release-assets.sh` | Verifies and merges matrix artifacts into a release, preserving per-variant manifests/checksums and rejecting filename collisions. |
@@ -70,7 +70,7 @@ Shell implementation used by the GitHub Actions workflows.
 
 ## Tests
 
-`tests/profile-data-test.sh` verifies all supported profile mappings and keeps
+`tests/wildkernels-features-test.sh` checks the pinned WildKernels patch sources, OnePlus Open-only build gating, feature configuration, and CI wiring.\n`tests/profile-data-test.sh` verifies all supported profile mappings and keeps
 the workflow dropdown synchronized with the mapping library. It also checks
 representative root, Clang, KPM, SUSFS, NoMount, and Android version decisions.
 FinaSU coverage checks the exact reviewed release pin, checkout routing, required
