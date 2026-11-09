@@ -15,7 +15,7 @@ grep -Fq 'PROFILE_ID" == "sm8550-oneplus-open-crdroid"' "$COMPILE" || fail "feat
 for feature in CONFIG_BBG CONFIG_TCP_CONG_BBR CONFIG_TCP_CONG_BBR3 CONFIG_NET_SCH_CAKE CONFIG_NET_SCH_PIE CONFIG_IP_SET CONFIG_IP6_NF_NAT CONFIG_NTSYNC CONFIG_SYSVIPC CONFIG_TMPFS_XATTR CONFIG_TMPFS_POSIX_ACL CONFIG_LTO_CLANG_THIN CONFIG_OPTIMIZE_INLINING; do
   grep -Fq "$feature" "$FEATURES" || fail "missing WildKernels feature: $feature"
 done
-for patch in gki_ptrace.patch common/bbrv3/0001-net-tcp-backport-BBRv3-to-android13-5.15.patch common/droidspaces/fix_sysvipc_kabi_1_2_3.patch common/ntsync/ntsync_compat_android13-5.15.patch common/unicode_bypass_fix_6.1-.patch; do
+for patch in gki_ptrace.patch common/bbrv3/0001-net-tcp-backport-BBRv3-to-android13-5.15.patch common/droidspaces/fix_sysvipc_kabi_1_2_3.patch common/ntsync/ntsync_compat_android13-5.15.patch common/unicode_bypass_fix_6.1-.patch oneplus/module_overlay/0001-module-Add-module-intercept-and-overlay-mechanism-android13-5.15.patch; do
   grep -Fq "$patch" "$FEATURES" || fail "missing compatibility patch mapping: $patch"
 done
 grep -Fq 'apply-wildkernels-features.sh" "$PWD" apply' "$COMPILE" || fail "feature integration is not invoked before defconfig"
