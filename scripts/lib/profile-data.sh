@@ -325,14 +325,10 @@ resolve_susfs_settings() {
     sm8550)
       case "$branch" in
         17.0|seventeen*|lineage-24*)
-          # The OnePlus Open crDroid 17.0 source declares BRANCH=android13-5.15
-          # in build.config.constants. Other SM8550 crDroid devices retain
-          # their existing Android 14 / 5.15 mapping.
-          if [[ "${PROFILE_ID:-}" == sm8550-oneplus-open-crdroid ]]; then
-            SUSFS_REF="gki-android13-5.15"
-          else
-            SUSFS_REF="gki-android14-5.15"
-          fi
+          # OnePlus Open crDroid 17 uses the Android 14 / 5.15 kernel KMI.
+          # Keep the SUSFS patch family aligned with the kernel source KMI,
+          # not the Android release number of the ROM.
+          SUSFS_REF="gki-android14-5.15"
           ;;
         lineage-20*|thirteen*|android13*|13.*|oneplus/*_t_13*|oneplus_*_t_13*)
           SUSFS_REF="gki-android13-5.15"
