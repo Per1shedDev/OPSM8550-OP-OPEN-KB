@@ -169,8 +169,7 @@ apply_optimisations() {
     common/int_sqrt.patch \
     common/reduce_gc_thread_sleep_time.patch \
     common/add_timeout_wakelocks_globally.patch \
-    common/f2fs_reduce_congestion.patch \
-    common/reduce_freeze_timeout.patch; do
+    common/f2fs_reduce_congestion.patch; do
     apply_upstream_patch "$path"
   done
   apply_freeze_timeout_patch
