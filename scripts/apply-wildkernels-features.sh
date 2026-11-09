@@ -82,7 +82,7 @@ apply_android14_5_15_bbrv3_patch() {
   local adapted_patch="$PATCH_CACHE/bbrv3-android14-5.15-crdroid.patch"
   sed \
     -e 's/^-\tint cnt;$/-\tint res, cpu, cnt;/' \
-    -e '/^+\tint cnt;$/d' \
+    -e 's/^+\tint cnt;$/+\tint res, cpu, cnt;/' \
     "$patch_file" > "$adapted_patch"
   grep -Fq -- '-	int res, cpu, cnt;' "$adapted_patch" || die "Could not adapt BBRv3 tcp_sk_init declaration for crDroid"
   grep -Fq -- '+	struct tcp_plb_net_context *ctx, *init_ctx;' "$adapted_patch" || die "BBRv3 crDroid adaptation lost PLB context declarations"
