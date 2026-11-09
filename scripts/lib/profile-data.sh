@@ -324,10 +324,17 @@ resolve_susfs_settings() {
       ;;
     sm8550)
       case "$branch" in
-        # crDroid 17.0 for the OnePlus Open still builds the android13-5.15
-        # kernel KMI (confirmed from crdroidandroid/android_kernel_oneplus_sm8550
-        # build.config.constants). ROM version is not the kernel KMI version.
-        17.0|seventeen*|lineage-24*|lineage-20*|thirteen*|android13*|13.*|oneplus/*_t_13*|oneplus_*_t_13*)
+        17.0|seventeen*|lineage-24*)
+          # The OnePlus Open crDroid 17.0 source declares BRANCH=android13-5.15
+          # in build.config.constants. Other SM8550 crDroid devices retain
+          # their existing Android 14 / 5.15 mapping.
+          if [[ "${PROFILE_ID:-}" == sm8550-oneplus-open-crdroid ]]; then
+            SUSFS_REF="gki-android13-5.15"
+          else
+            SUSFS_REF="gki-android14-5.15"
+          fi
+          ;;
+        lineage-20*|thirteen*|android13*|13.*|oneplus/*_t_13*|oneplus_*_t_13*)
           SUSFS_REF="gki-android13-5.15"
           ;;
         *)
