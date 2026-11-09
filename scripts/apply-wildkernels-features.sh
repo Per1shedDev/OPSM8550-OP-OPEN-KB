@@ -120,7 +120,7 @@ setup_bbg() {
   # wiring and older SELinux compatibility. Passing the commit pins its source.
   (cd "$KERNEL_ROOT" && sh "$bbg_dir/setup.sh" "$BBG_COMMIT")
   [[ -L "$KERNEL_ROOT/security/baseband-guard" ]] || die "BBG security symlink was not created"
-  grep -q 'baseband_guard' "$KERNEL_ROOT/security/Makefile" || die "BBG Kbuild entry missing"
+  grep -Fqx 'obj-$(CONFIG_BBG) += baseband-guard/' "$KERNEL_ROOT/security/Makefile" || die "BBG Kbuild entry missing or malformed"
   grep -q 'security/baseband-guard/Kconfig' "$KERNEL_ROOT/security/Kconfig" || die "BBG Kconfig entry missing"
   # Match WildKernels' LSM registration: retain the kernel's existing LSM order
   # and append baseband_guard to the SELinux default.
