@@ -87,6 +87,7 @@ setup_bbg() {
   # Match WildKernels' LSM registration: retain the kernel's existing LSM order
   # and append baseband_guard to the SELinux default.
   sed -i '/^config LSM$/,/^help$/{ /^[[:space:]]*default/ { /baseband_guard/! s/selinux/selinux,baseband_guard/ } }' "$KERNEL_ROOT/security/Kconfig"
+  grep -Eq '^[[:space:]]*default[[:space:]]+"[^"]*baseband_guard' "$KERNEL_ROOT/security/Kconfig" || die "BBG is not registered in the active LSM default"
   set_defconfig CONFIG_BBG y
 }
 
@@ -277,6 +278,7 @@ verify_config() {
   done
   grep -Fqx 'CONFIG_IP_SET_MAX=65534' "$config_file" || die "CONFIG_IP_SET_MAX did not survive olddefconfig"
   grep -Fqx 'CONFIG_FRAME_WARN=0' "$config_file" || die "CONFIG_FRAME_WARN did not survive olddefconfig"
+  grep -Eq '^CONFIG_LSM="[^"]*baseband_guard' "$config_file" || die "Baseband Guard is missing from the final CONFIG_LSM order"
   {
     echo "final_config=$config_file"
     echo "config_validation=passed"
