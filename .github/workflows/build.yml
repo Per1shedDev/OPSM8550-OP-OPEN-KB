@@ -348,6 +348,7 @@ jobs:
             ${{ github.workspace }}/${{ steps.resolve.outputs.soc }}/susfs-source-proof.txt
             ${{ github.workspace }}/${{ steps.resolve.outputs.soc }}/susfs-hook-proof.txt
             ${{ github.workspace }}/${{ steps.resolve.outputs.soc }}/susfs-proof.txt
+            ${{ github.workspace }}/${{ steps.resolve.outputs.soc }}/wildkernels-features-proof.txt
             ${{ github.workspace }}/${{ steps.resolve.outputs.soc }}/nomount-source-proof.txt
             ${{ github.workspace }}/${{ steps.resolve.outputs.soc }}/nomount-proof.txt
             ${{ github.workspace }}/${{ steps.resolve.outputs.soc }}/zeromount-source-proof.txt
