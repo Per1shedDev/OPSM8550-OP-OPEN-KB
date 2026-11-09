@@ -149,7 +149,7 @@ apply_features() {
   {
     echo "profile=sm8550-oneplus-open-crdroid"
     echo "kernel_source=crDroid Android 17"
-    echo "kernel_family=android14-5.15"
+    echo "kernel_family=android13-5.15"
     echo "patches_repo_commit=$PATCHES_COMMIT"
     echo "baseband_guard_commit=$BBG_COMMIT"
   } >> "$PROOF"
@@ -158,7 +158,7 @@ apply_features() {
   apply_upstream_patch gki_ptrace.patch
 
   # BBRv3's upstream 5.15 patch is maintained as android13-5.15. The 5.15
-  # patch is attempted against the Android 14 KMI tree and must pass a clean
+  # patch is attempted against the crDroid 17 Android 13 / 5.15 KMI tree and must pass a clean
   # dry-run; if the downstream tree diverges, fail instead of claiming BBRv3.
   apply_upstream_patch common/bbrv3/0001-net-tcp-backport-BBRv3-to-android13-5.15.patch
 
