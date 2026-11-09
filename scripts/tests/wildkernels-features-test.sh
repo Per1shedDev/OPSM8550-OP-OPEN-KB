@@ -24,6 +24,9 @@ grep -Fq "obj-\$(CONFIG_BBG) += baseband-guard/" "$FEATURES" || fail "BBG Kbuild
 grep -Fq 'freeze_timeout_msecs = 5 * MSEC_PER_SEC;' "$FEATURES" || fail "missing crDroid freeze-timeout compatibility adapter"
 grep -Fq 'apply_freeze_timeout_patch' "$FEATURES" || fail "freeze-timeout patch bypasses its compatibility adapter"
 grep -Fq 'apply_upstream_patch common/clear_page_16bytes_align.patch' "$FEATURES" || fail "clear_page patch must use the unmodified upstream patch"
+grep -Fq 'CONFIG_IP_NF_TARGET_REJECT=y' "$FEATURES" || fail "IPv4 iptables REJECT uses the wrong Kconfig symbol"
+grep -Fq 'CONFIG_IP6_NF_TARGET_REJECT=y' "$FEATURES" || fail "IPv6 iptables REJECT uses the wrong Kconfig symbol"
+if grep -Fq 'CONFIG_NETFILTER_XT_TARGET_REJECT' "$FEATURES"; then fail "nonexistent generic xtables REJECT symbol must not be configured"; fi
 grep -Fq 'already has the exact 16-byte' "$FEATURES" || fail "clear_page compatibility rationale is missing"
 if grep -Fq 'SYM_FUNC_START_PI(__pi_clear_page)' "$FEATURES"; then fail "clear_page patch must not rewrite the existing symbol"; fi
 grep -Fq 'baseband_guard' "$FEATURES" || fail "BBG LSM registration is not verified"
