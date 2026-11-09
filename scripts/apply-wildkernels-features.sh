@@ -24,7 +24,7 @@ fetch_patch() {
   local path="$1"
   local out="$PATCH_CACHE/${path//\//__}"
   if [[ ! -s "$out" ]]; then
-    note "Downloading $path"
+    note "Downloading $path" >&2
     curl --fail --location --silent --show-error --retry 3 \
       "https://raw.githubusercontent.com/WildKernels/kernel_patches/$PATCHES_COMMIT/$path" -o "$out"
   fi
