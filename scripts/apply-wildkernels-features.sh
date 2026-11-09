@@ -150,7 +150,7 @@ apply_features() {
   {
     echo "profile=sm8550-oneplus-open-crdroid"
     echo "kernel_source=crDroid Android 17"
-    echo "kernel_family=android13-5.15"
+    echo "kernel_family=android14-5.15"
     echo "patches_repo_commit=$PATCHES_COMMIT"
     echo "baseband_guard_commit=$BBG_COMMIT"
   } >> "$PROOF"
@@ -179,7 +179,7 @@ apply_features() {
   fi
 
   # NTSync has a 5.15 compatibility backport (the only 5.15 variant published
-  # by WildKernels); apply only if its hunks match the crDroid Android 17 tree.
+  # by WildKernels); apply only if its hunks match the crDroid Android 17 Android 14 / 5.15 tree.
   apply_upstream_patch common/ntsync/ntsync_compat_android13-5.15.patch
   apply_upstream_patch common/ntsync/ntsync_base.patch
 
