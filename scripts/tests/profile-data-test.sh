@@ -388,7 +388,7 @@ for crdroid_soc in sm7550 sm8550 sm8650; do
   resolve_susfs_settings "$crdroid_soc" 17.0
   case "$crdroid_soc" in
     sm8550)
-      assert_eq "gki-android13-5.15" "$SUSFS_REF" "crDroid 17 OnePlus Open Android 13 / 5.15 kernel KMI"
+      assert_eq "gki-android14-5.15" "$SUSFS_REF" "crDroid 17 OnePlus Open Android 14 / 5.15 kernel KMI"
       ;;
     sm8650)
       assert_eq "gki-android14-6.1" "$SUSFS_REF" "crDroid 13 OnePlus 12 GKI base"
