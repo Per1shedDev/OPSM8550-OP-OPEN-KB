@@ -129,6 +129,20 @@ setup_bbg() {
   set_defconfig CONFIG_BBG y
 }
 
+apply_freeze_timeout_patch() {
+  local patch_file adapted_patch
+  patch_file="$(fetch_patch common/reduce_freeze_timeout.patch)"
+  adapted_patch="$PATCH_CACHE/reduce_freeze_timeout-5.15-crdroid.patch"
+  # This crDroid 5.15 tree already uses a 5-second timeout rather than
+  # upstream's 20-second default. Retarget only the old-value line; retain
+  # the upstream 1-second value and the independent sysfs-store restriction.
+  sed 's/^-unsigned int __read_mostly freeze_timeout_msecs = 20 \* MSEC_PER_SEC;$/-unsigned int __read_mostly freeze_timeout_msecs = 5 * MSEC_PER_SEC;/' \
+    "$patch_file" > "$adapted_patch"
+  grep -Fq -- '-unsigned int __read_mostly freeze_timeout_msecs = 5 * MSEC_PER_SEC;' "$adapted_patch" || die "Could not adapt freeze timeout patch to crDroid's existing 5-second default"
+  grep -Fq -- '+unsigned int __read_mostly freeze_timeout_msecs = MSEC_PER_SEC;' "$adapted_patch" || die "Freeze timeout adaptation lost the 1-second target"
+  apply_patch_file "$adapted_patch" "common/reduce_freeze_timeout.patch (crDroid 5-second default adaptation)"
+}
+
 apply_optimisations() {
   # These are the common optimisation patches used by WildKernels for 5.15.
   local paths=(
@@ -159,6 +173,7 @@ apply_optimisations() {
     common/reduce_freeze_timeout.patch; do
     apply_upstream_patch "$path"
   done
+  apply_freeze_timeout_patch
 
   p="$(fetch_patch common/clear_page_16bytes_align.patch)"
   tmp="$PATCH_CACHE/clear_page_16bytes_align-5.15.patch"
