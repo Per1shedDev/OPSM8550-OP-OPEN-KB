@@ -50,6 +50,67 @@ apply_upstream_patch() {
   apply_patch_file "$(fetch_patch "$path")" "$path"
 }
 
+apply_sysvipc_kabi_patch() {
+  local sched="$KERNEL_ROOT/include/linux/sched.h"
+  [[ -s "$sched" ]] || die "SYSVIPC KABI target not found: $sched"
+
+  # crDroid 17.0 already consumes KABI slot 1 for user_dumpable. The generic
+  # WildKernels patch assumes slots 1-3 are free, so map SYSVIPC onto the
+  # available slots 2-4 while retaining the original reserve layout when
+  # CONFIG_SYSVIPC is disabled.
+  python3 - "$sched" <<'PY'
+import pathlib
+import sys
+
+path = pathlib.Path(sys.argv[1])
+text = path.read_text()
+
+old_fields = """#ifdef CONFIG_SYSVIPC
+\tstruct sysv_sem\t\t\tsysvsem;
+\tstruct sysv_shm\t\tsysvshm;
+#endif"""
+new_fields = """#ifdef CONFIG_SYSVIPC
+\t// struct sysv_sem\t\tsysvsem;
+\t// struct sysv_shm\t\tsysvshm;
+#endif"""
+
+old_slots = """\tANDROID_KABI_RESERVE(2);
+\tANDROID_KABI_RESERVE(3);
+\tANDROID_KABI_RESERVE(4);
+\tANDROID_KABI_RESERVE(5);"""
+new_slots = """#ifdef CONFIG_SYSVIPC
+\tANDROID_KABI_USE(2, struct sysv_sem sysvsem);
+\t_ANDROID_KABI_REPLACE(ANDROID_KABI_RESERVE(3); ANDROID_KABI_RESERVE(4), struct sysv_shm sysvshm);
+#else
+\tANDROID_KABI_RESERVE(2);
+\tANDROID_KABI_RESERVE(3);
+\tANDROID_KABI_RESERVE(4);
+#endif
+\tANDROID_KABI_RESERVE(5);"""
+
+already_fields = new_fields in text
+already_slots = "ANDROID_KABI_USE(2, struct sysv_sem sysvsem);" in text and "_ANDROID_KABI_REPLACE(ANDROID_KABI_RESERVE(3); ANDROID_KABI_RESERVE(4), struct sysv_shm sysvshm);" in text
+
+if old_fields in text:
+    text = text.replace(old_fields, new_fields, 1)
+elif not already_fields:
+    raise SystemExit("Unexpected task_struct SYSVIPC field layout; refusing to edit sched.h")
+
+if old_slots in text:
+    text = text.replace(old_slots, new_slots, 1)
+elif not already_slots:
+    raise SystemExit("Expected free Android KABI slots 2-4 were not found; refusing to edit sched.h")
+
+path.write_text(text)
+PY
+
+  grep -Fq 'ANDROID_KABI_USE(2, struct sysv_sem sysvsem);' "$sched" \
+    || die "SYSVIPC semaphore field was not moved into KABI slot 2"
+  grep -Fq '_ANDROID_KABI_REPLACE(ANDROID_KABI_RESERVE(3); ANDROID_KABI_RESERVE(4), struct sysv_shm sysvshm);' "$sched" \
+    || die "SYSVIPC shared-memory field was not moved into KABI slots 3-4"
+  note "Applied common/droidspaces/fix_sysvipc_kabi_1_2_3.patch (crDroid KABI slot adaptation)"
+}
+
 set_defconfig() {
   local key="$1" value="$2"
   if grep -q "^$key=" "$DEFCONFIG"; then
@@ -164,7 +225,7 @@ apply_features() {
   apply_upstream_patch common/bbrv3/0001-net-tcp-backport-BBRv3-to-android13-5.15.patch
 
   # Droidspaces compatibility patches selected by WildKernels for SM8550.
-  apply_upstream_patch common/droidspaces/fix_sysvipc_kabi_1_2_3.patch
+  apply_sysvipc_kabi_patch
   apply_upstream_patch common/droidspaces/0001-Return-ghost-task-if-task-is-null-and-is-requested-b.patch
 
   # OnePlus module interception/overlay support. The OP-OPEN Android 17
