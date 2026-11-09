@@ -108,6 +108,7 @@ PY
     || die "SYSVIPC semaphore field was not moved into KABI slot 2"
   grep -Fq '_ANDROID_KABI_REPLACE(ANDROID_KABI_RESERVE(3); ANDROID_KABI_RESERVE(4), struct sysv_shm sysvshm);' "$sched" \
     || die "SYSVIPC shared-memory field was not moved into KABI slots 3-4"
+  echo "sysvipc_kabi_layout=slot1:user_dumpable;sysvsem:slot2;sysvshm:slots3-4" >> "$PROOF"
   note "Applied common/droidspaces/fix_sysvipc_kabi_1_2_3.patch (crDroid KABI slot adaptation)"
 }
 
@@ -220,8 +221,8 @@ apply_features() {
   apply_upstream_patch gki_ptrace.patch
 
   # BBRv3's upstream 5.15 patch is maintained as android13-5.15. The 5.15
-  # patch is attempted against the crDroid 17 Android 13 / 5.15 KMI tree and must pass a clean
-  # dry-run; if the downstream tree diverges, fail instead of claiming BBRv3.
+  # patch is attempted against the crDroid 17 Android 14 / 5.15 KMI tree and
+  # must pass a clean dry-run; if the downstream tree diverges, fail instead of claiming BBRv3.
   apply_upstream_patch common/bbrv3/0001-net-tcp-backport-BBRv3-to-android13-5.15.patch
 
   # Droidspaces compatibility patches selected by WildKernels for SM8550.
@@ -229,7 +230,8 @@ apply_features() {
   apply_upstream_patch common/droidspaces/0001-Return-ghost-task-if-task-is-null-and-is-requested-b.patch
 
   # OnePlus module interception/overlay support. The OP-OPEN Android 17
-  # profile uses the android13-5.15 kernel KMI, so use that exact upstream patch.
+  # profile uses the Android 14 / 5.15 KMI; this is the available 5.15
+  # backport variant and must match the downstream source before proceeding.
   apply_upstream_patch oneplus/module_overlay/0001-module-Add-module-intercept-and-overlay-mechanism-android13-5.15.patch
   if [[ -f "$KERNEL_ROOT/kernel/module_overlay/convert_overlay.sh" ]]; then
     chmod +x "$KERNEL_ROOT/kernel/module_overlay/convert_overlay.sh"
@@ -240,7 +242,8 @@ apply_features() {
   fi
 
   # NTSync has a 5.15 compatibility backport (the only 5.15 variant published
-  # by WildKernels); apply only if its hunks match the crDroid Android 17 Android 14 / 5.15 tree.
+  # by WildKernels); apply only if its hunks match the crDroid Android 17
+  # Android 14 / 5.15 KMI tree.
   apply_upstream_patch common/ntsync/ntsync_compat_android13-5.15.patch
   apply_upstream_patch common/ntsync/ntsync_base.patch
 
