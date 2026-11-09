@@ -167,6 +167,17 @@ apply_features() {
   apply_upstream_patch common/droidspaces/fix_sysvipc_kabi_1_2_3.patch
   apply_upstream_patch common/droidspaces/0001-Return-ghost-task-if-task-is-null-and-is-requested-b.patch
 
+  # OnePlus module interception/overlay support. The OP-OPEN Android 17
+  # profile uses the android13-5.15 kernel KMI, so use that exact upstream patch.
+  apply_upstream_patch oneplus/module_overlay/0001-module-Add-module-intercept-and-overlay-mechanism-android13-5.15.patch
+  if [[ -f "$KERNEL_ROOT/kernel/module_overlay/convert_overlay.sh" ]]; then
+    chmod +x "$KERNEL_ROOT/kernel/module_overlay/convert_overlay.sh"
+  elif [[ -f "$KERNEL_ROOT/kernel/module/module_overlay/convert_overlay.sh" ]]; then
+    chmod +x "$KERNEL_ROOT/kernel/module/module_overlay/convert_overlay.sh"
+  else
+    die "Module overlay patch applied but convert_overlay.sh was not created"
+  fi
+
   # NTSync has a 5.15 compatibility backport (the only 5.15 variant published
   # by WildKernels); apply only if its hunks match the crDroid Android 17 tree.
   apply_upstream_patch common/ntsync/ntsync_compat_android13-5.15.patch
@@ -243,7 +254,7 @@ apply_features() {
   # The stock WildKernels OP-OPEN profile sets hmbird=false. Do not import
   # HMBIRD/SCX, which is intended for other SoCs and is not enabled on SM8550.
   {
-    echo "features=BBR,BBRv3,BBG,CAKE,PIE,ptrace-fix,optimisations,TTL,IP_SET,IPv6_NAT,TMPFS_XATTR,TMPFS_POSIX_ACL,Unicode,Droidspaces,NTSync"
+    echo "features=BBR,BBRv3,BBG,CAKE,PIE,ptrace-fix,module-overlay,optimisations,TTL,IP_SET,IPv6_NAT,TMPFS_XATTR,TMPFS_POSIX_ACL,Unicode,Droidspaces,NTSync"
     echo "hmbird=false"
     echo "status=source patches applied; final .config validation follows"
   } >> "$PROOF"
