@@ -19,6 +19,7 @@ for patch in gki_ptrace.patch common/bbrv3/0001-net-tcp-backport-BBRv3-to-androi
   grep -Fq "$patch" "$FEATURES" || fail "missing compatibility patch mapping: $patch"
 done
 grep -Fq 'apply-wildkernels-features.sh" "$PWD" apply' "$COMPILE" || fail "feature integration is not invoked before defconfig"
-grep -Fq 'apply-wildkernels-features.sh" "$PWD" verify' "$COMPILE" || fail "final config verification is not invoked"\ngrep -Fq 'baseband_guard' "$FEATURES" || fail "BBG LSM registration is not verified"
+grep -Fq 'apply-wildkernels-features.sh" "$PWD" verify' "$COMPILE" || fail "final config verification is not invoked"
+grep -Fq 'baseband_guard' "$FEATURES" || fail "BBG LSM registration is not verified"
 grep -Fq 'bash scripts/tests/wildkernels-features-test.sh' "$WORKFLOW" || fail "CI does not run WildKernels feature integration test"
 echo "PASS: WildKernels OnePlus Open feature integration wiring"
