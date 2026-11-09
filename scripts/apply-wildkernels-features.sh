@@ -174,10 +174,11 @@ apply_optimisations() {
   done
   apply_freeze_timeout_patch
 
-  p="$(fetch_patch common/clear_page_16bytes_align.patch)"
-  tmp="$PATCH_CACHE/clear_page_16bytes_align-5.15.patch"
-  sed -e 's/SYM_FUNC_START_PI(clear_page)/SYM_FUNC_START_PI(__pi_clear_page)/' "$p" > "$tmp"
-  apply_patch_file "$tmp" "common/clear_page_16bytes_align.patch (5.15 adaptation)"
+  # The pinned crDroid 5.15 source already has the exact 16-byte
+  # alignment and clear_page symbol from this upstream patch. Apply the
+  # unmodified patch: apply_patch_file will verify it as already present
+  # via the reverse dry-run instead of corrupting the symbol context.
+  apply_upstream_patch common/clear_page_16bytes_align.patch
 
   for path in \
     common/add_limitation_scaling_min_freq.patch \
