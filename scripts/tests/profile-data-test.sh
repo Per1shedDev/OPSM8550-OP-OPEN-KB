@@ -380,6 +380,11 @@ assert_eq "gki-android14-5.15" "$SUSFS_REF" "Android 16 susfs"
 resolve_susfs_settings sm7550 lineage-23.0
 assert_eq "gki-android14-5.15" "$SUSFS_REF" "Nord CE4 susfs"
 for crdroid_soc in sm7550 sm8550 sm8650; do
+  case "$crdroid_soc" in
+    sm7550) PROFILE_ID="sm7550-oneplus-nord-ce4-crdroid" ;;
+    sm8550) PROFILE_ID="sm8550-oneplus-open-crdroid" ;;
+    sm8650) PROFILE_ID="sm8650-oneplus12-crdroid" ;;
+  esac
   resolve_susfs_settings "$crdroid_soc" 17.0
   case "$crdroid_soc" in
     sm8550)
