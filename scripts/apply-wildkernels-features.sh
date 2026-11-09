@@ -74,7 +74,19 @@ apply_android14_5_15_bbrv3_patch() {
       "https://raw.githubusercontent.com/WildKernels/GKI_KernelSU_SUSFS/$WILDKERNELS_GKI_COMMIT/.github/actions/bbrv3/patches/0001-net-tcp-backport-BBRv3-to-android14-5.15.patch" \
       -o "$patch_file"
   fi
-  apply_patch_file "$patch_file" "WildKernels BBRv3 android14-5.15"
+  # crDroid's tcp_sk_init() already declares res, cpu, and cnt. The
+  # upstream Android 14 patch assumes the leaner GKI declaration "int cnt;"
+  # and replaces it, which makes the otherwise-compatible patch reject.
+  # Retarget only that declaration hunk; preserve all BBRv3 implementation
+  # hunks and keep the patch check strict.
+  local adapted_patch="$PATCH_CACHE/bbrv3-android14-5.15-crdroid.patch"
+  sed \
+    -e 's/^-\tint cnt;$/-\tint res, cpu, cnt;/' \
+    -e '/^+\tint cnt;$/d' \
+    "$patch_file" > "$adapted_patch"
+  grep -Fq -- '-	int res, cpu, cnt;' "$adapted_patch" || die "Could not adapt BBRv3 tcp_sk_init declaration for crDroid"
+  grep -Fq -- '+	struct tcp_plb_net_context *ctx, *init_ctx;' "$adapted_patch" || die "BBRv3 crDroid adaptation lost PLB context declarations"
+  apply_patch_file "$adapted_patch" "WildKernels BBRv3 android14-5.15 (crDroid declaration adaptation)"
 }
 set_defconfig() {
   local key="$1" value="$2"
