@@ -20,6 +20,7 @@ for patch in gki_ptrace.patch 0001-net-tcp-backport-BBRv3-to-android14-5.15.patc
 done
 grep -Fq 'apply-wildkernels-features.sh" "$PWD" apply' "$COMPILE" || fail "feature integration is not invoked before defconfig"
 grep -Fq 'apply-wildkernels-features.sh" "$PWD" verify' "$COMPILE" || fail "final config verification is not invoked"
+grep -Fq "obj-\$(CONFIG_BBG) += baseband-guard/" "$FEATURES" || fail "BBG Kbuild entry is not checked against the upstream entry"
 grep -Fq 'baseband_guard' "$FEATURES" || fail "BBG LSM registration is not verified"
 grep -Fq 'bash scripts/tests/wildkernels-features-test.sh' "$WORKFLOW" || fail "CI does not run WildKernels feature integration test"
 echo "PASS: WildKernels OnePlus Open feature integration wiring"
